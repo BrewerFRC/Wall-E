@@ -36,7 +36,8 @@ def playSnd(file) :
 #
 
 # Joystick
-j = xbox.Joystick()
+j1 = xbox.Joystick(0)
+j2 = xbox.Joystick(1)
 # Maestro Controllers
 servo = maestro.Controller()
 # DriveTrain

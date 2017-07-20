@@ -34,7 +34,7 @@ class Joystick:
     Usage:
         joy = xbox.Joystick()
     """
-    def __init__(self,refreshRate = 30):
+    def __init__(self, port, refreshRate = 30):
         # Edge Trigger Booleans
         self.pressA = False
         self.pressB = False
@@ -55,7 +55,7 @@ class Joystick:
         self.pressRJL = False
         self.pressRJR = False
         
-        self.proc = subprocess.Popen(['xboxdrv','--no-uinput','--detach-kernel-driver'], stdout=subprocess.PIPE)
+        self.proc = subprocess.Popen(['xboxdrv','--no-uinput','--detach-kernel-driver' '--wid '+str(port)], stdout=subprocess.PIPE)
         self.pipe = self.proc.stdout
         #
         self.connectStatus = False  #will be set to True once controller is detected and stays on
