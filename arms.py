@@ -12,8 +12,6 @@ class Arms:
         self.right_hand = maestro.Controller(ch_right_hand)
 
 class Joint:
-    def __init__(self, maestro_channel, pot_channel, ):
+    def __init__(self, maestro_channel, pot_channel):
         self.controller = maestro.Controller(channel)
         self.pot = protocol.Potentiometer(pot_channel)
-
-    

@@ -15,7 +15,7 @@ usb = serial.Serial('/dev/ttyUSB0',baudrate=115200, timeout=0.01)
 
 class Potentiometer:
     def __init__(self, channel):
-        self.cmd = "P" + chr(channel)
+        self.cmd = "A" + chr(channel)
 
     def read():
         sendCommand(self.cmd)
