@@ -17,7 +17,12 @@ buttonPressed = False
 # Channels for Servo Controller #1
 CH_LEFT_MOTOR  = 1
 CH_RIGHT_MOTOR = 0
-
+# Channels for arm vertical movement
+CH_LEFT_ARM_VERT = 2
+CH_RIGHT_ARM_VERT = 3
+# Channels for hand servos
+CH_LEFT_HAND = 4
+CH_RIGHT_HAND = 5
 
 #
 # FUNCTIONS
@@ -45,8 +50,10 @@ drivetrain = drive.DriveTrain(servo,CH_RIGHT_MOTOR,CH_LEFT_MOTOR)
 speedtoggle = True # false = slow, true = normal
 # Head servo
 head = head.Head(servo)
+# Arm controller
+arms = arms.Arms()
 # Emotions
-emotion = emotions.Emotions(head)
+emotion = emotions.Emotions(head, arms)
 # Sound
 pygame.mixer.init(22050, -16, 1, 1024)
 channel = pygame.mixer.Channel(1)
@@ -79,14 +86,14 @@ try:
                                         drivetrain.drive(j.leftX() * .5, -(j.leftY()))
                                 else:
                                         drivetrain.drive(j.leftX() * .40, -(j.leftY() * .5))
-                                
+
 		else:
 			drivetrain.stop()
 
-                                
-                        
+
+
                 # Head
-                
+
                 # if the joystick is centered for 5 seconds, change to idle mode
                 #print mode,j.rightX(),j.rightY()
                 if abs(j.rightX()) <.1 and abs(j.rightY()) < .1 and abs(j.leftTrigger()) < .1 and abs(j.rightTrigger()) < .1 and abs(j.leftX()) <.1 and abs(j.leftY()) < .1:
@@ -108,7 +115,7 @@ try:
                                 head.browCenter()
                 if mode == "idle":
                         # Is it time to start an idle move?
-                        if time.time() > idleWait:  
+                        if time.time() > idleWait:
                                 idleWait = time.time() + random.randint(2,10) #Next idle event wait time
                                 #
                                 look = random.randint(1, 17)
@@ -149,7 +156,7 @@ try:
                                         if j.rightBumper():
                                                 Disable = False
                                                 print "Disabled"
-                        
+
 		# Play Sounds if B button is pressed
 		if j.B() or j.dpadUp():
                         if j.leftBumper() or j.dpadUp():
@@ -160,11 +167,11 @@ try:
                                         playSnd(sounds[random.randint(0, 8)])
                         else:
                                 playSnd(sounds[random.randint(0, 8)])
-			
+
 		# Play "WALL-E" if Y button is pressed
 		if j.Y():
                         idleWait = time.time() + random.randint(2,10) #Next idle event wait time
-                        mode = "idle"      
+                        mode = "idle"
                         if j.leftBumper():
                                 if j.rightBumper():
                                         emotion.easterEgg(1)
@@ -173,7 +180,7 @@ try:
                                         emotion.intro()
                         else:
                                 emotion.intro()
-                                
+
 		# Print test results if A button is pressed
 		if j.A():
                         if j.leftBumper():
@@ -184,9 +191,9 @@ try:
                                         print(servo.isMoving(0),servo.isMoving(1))
                         else:
                                 print(servo.isMoving(0),servo.isMoving(1))
-                
 
-		# Play a random emotion if B Button is pressed	
+
+		# Play a random emotion if B Button is pressed
 		if j.X():
                         if j.leftBumper():
                                 if j.rightBumper():
@@ -199,7 +206,7 @@ try:
                                 idleWait = time.time() + random.randint(2,10) #Next idle event wait time
                                 mode = "idle"
                                 emotion.Outburst()
-                        
+
 except:
 	drivetrain.close()
 	servo.close()
