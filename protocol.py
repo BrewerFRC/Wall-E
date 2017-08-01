@@ -22,7 +22,7 @@ class Potentiometer:
         response = readBytes(2)
         if len(response) == 2:
             return bytesToShort(response)
-        return None
+        return 0
 
 class Servo:
     def __init__(self, channel, center = 90):
