@@ -97,6 +97,7 @@ class Head():
                 pass
 	def isHeadMoving(self):
                 pass
+        
 	def movePitch(self, position, speed):
                 self.maestro.setSpeed(CH_PITCH, speed)
                 self.maestro.setTarget(CH_PITCH, position)
@@ -109,6 +110,12 @@ class Head():
                 self.maestro.setSpeed(CH_BROW, BROW_SPEED)
                 self.maestro.setTarget(CH_BROW, position)
 
+        # Function to stop the movement of the head
+        # Work in progress. Do not use.
+        def stopHead(self)
+                self.maestro.setSpeed(CH_YAW, 0)
+                self.maestro.setSpeed(CH_PITCH, 0)
+
         def browUp(self):
                 self.moveBrow(BROW_U)
 
@@ -117,7 +124,8 @@ class Head():
 
         def browCenter(self):
                 self.moveBrow(BROW_C)
-                
+
+        # Move head to a random coordinate upward
 	def lookUp(self, throttle = 1.0):
                 yawChange = random.randint(-600, 600)
                 yaw = self.maestro.getPosition(CH_YAW) + yawChange
@@ -128,7 +136,8 @@ class Head():
                 self.maestro.setSpeed(CH_PITCH, p)
                 self.maestro.setTarget(CH_YAW, yaw)
                 self.maestro.setTarget(CH_PITCH, pitch)
-                
+
+        # Move head to a random coordinate downward
 	def lookDown(self, throttle = 1.0):
                 yawChange = random.randint(-600, 600)
                 yaw = self.maestro.getPosition(CH_YAW) + yawChange
@@ -140,6 +149,7 @@ class Head():
                 self.maestro.setTarget(CH_YAW, yaw)
                 self.maestro.setTarget(CH_PITCH, pitch)
                 
+        # Move head to a random coordinate to the left     
 	def lookLeft(self, throttle = 1.0):
                 pitchChange = random.randint(-600, 600)
                 pitch = self.maestro.getPosition(CH_PITCH) + pitchChange
@@ -150,7 +160,8 @@ class Head():
                 self.maestro.setSpeed(CH_PITCH, p)
                 self.maestro.setTarget(CH_YAW, yaw)
                 self.maestro.setTarget(CH_PITCH, pitch)
-                
+
+        # Move head to a random coordinate to the right
 	def lookRight(self, throttle = 1.0):
                 pitchChange = random.randint(-600, 600)
                 pitch = self.maestro.getPosition(CH_PITCH) + pitchChange
@@ -162,6 +173,7 @@ class Head():
                 self.maestro.setTarget(CH_YAW, yaw)
                 self.maestro.setTarget(CH_PITCH, pitch)
 
+        # Set yaw to center position (horizontal axis)
         def yawCenter(self, throttle = 0.5):
                 #pitch = random.randint(PITCH_D, PITCH_U)
                 yaw = random.randint(YAW_CL, YAW_CR)
@@ -172,6 +184,7 @@ class Head():
                 self.maestro.setTarget(CH_YAW, yaw)
                 #self.maestro.setTarget(CH_PITCH, pitch)
 
+        # Set pitch to center position (Vertical Axis)
         def pitchCenter(self, throttle = 0.5):
                 pitch = random.randint(PITCH_D, PITCH_U)
                 #yaw = random.randint(YAW_CL, YAW_CR)
@@ -181,7 +194,8 @@ class Head():
                 self.maestro.setSpeed(CH_PITCH, p)
                 #self.maestro.setTarget(CH_YAW, yaw)
                 self.maestro.setTarget(CH_PITCH, pitch)
-                
+
+        # Return head to center position
 	def lookCentered(self, throttle = 0.5):
                 pitch = random.randint(PITCH_D, PITCH_U)
                 yaw = random.randint(YAW_CL, YAW_CR)
@@ -192,6 +206,13 @@ class Head():
                 self.maestro.setTarget(CH_YAW, yaw)
                 self.maestro.setTarget(CH_PITCH, pitch)
 
+        # Move the head at a constant rate when joystick is pressed.
+        def moveConstLR(self, direc):
+                
+        # Move the head at a constant rate when joystick is pressed.
+        def moveConstUD(self, direc):
+
+        # Set the head to an exact position corresponding to a joystick.
 	def moveAbs(self, x, y):
                 self.maestro.setSpeed(CH_YAW,YAW_SPEED)
 		if x >= 0:
