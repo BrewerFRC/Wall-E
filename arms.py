@@ -6,6 +6,8 @@ RIGHT_SHOULDER_LIMITS = [0, 0]
 LEFT_SHOULDER_LIMITS = [0, 0]
 RIGHT_ELBOW_LIMITS = [0, 0]
 LEFT_ELBOW_LIMITS = [0, 0]
+MAX_SPEED = 60
+MIN_SPEED = 1
 
 class Arms:
     # Shoulder: (Maestro channel, analog channel) | Hand: Maestro channel | Elbow: (Maestro channel, analog channel)
@@ -34,3 +36,15 @@ class Joint:
         if position <= self.limits[1] and position >= self.limits[0]:
             return True
         return False
+
+    #speed scaling from 0 through 1, -1 is unrestricted
+    #position scaling through -1 through 1
+    def moveAbs(self, postition, speed = -1):
+        if self.moveable() == True:
+            #speed of -1 is unrestricted
+            if speed == -1:
+                speed = 0
+            else:
+                speed = (MAX_SPEED - MIN_SPEED) * speed + MIN_SPEED
+
+            position = abs((positions(2) - positions(0)) * position) + positions(0)
