@@ -20,11 +20,17 @@ class Arms:
         self.right_hand = maestro.Controller(ch_right_hand)
 
 class Joint:
-    def __init__(self, maestro_channel, pot_channel=None, limits=None):
+    # Limits: [upper, lower], Speeds: [backward, stop, forward]
+    def __init__(self, maestro_channel, pot_channel=None, limits=None, targets=[4000, 6000, 8000], servo=False):
         self.controller = maestro.Controller(channel)
         if not pot_channel == None:
             self.pot = protocol.Potentiometer(pot_channel)
         self.limits = limits
+        if servo:
+            self.positions = targets
+        else:
+            self.speeds = targets
+        self.servo = servo
 
     def moveable(self):
         if self.limits == None:
