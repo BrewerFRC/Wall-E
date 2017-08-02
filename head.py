@@ -113,8 +113,9 @@ class Head():
         # Function to stop the movement of the head
         # Work in progress. Do not use.
         def stopHead(self)
-                self.maestro.setSpeed(CH_YAW, 0)
-                self.maestro.setSpeed(CH_PITCH, 0)
+                self.maestro.moveBrow(self.maestro.getPosition(CH_BROW), BROW_SPEED)
+                self.maestro.moveYaw(self.maestro.getPosition(CH_YAW), YAW_SPEED)
+                self.maestro.movePitch(self.maestro.getPosition(CH_PITCH), PITCH_SPEED)
 
         def browUp(self):
                 self.moveBrow(BROW_U)
@@ -206,11 +207,34 @@ class Head():
                 self.maestro.setTarget(CH_YAW, yaw)
                 self.maestro.setTarget(CH_PITCH, pitch)
 
-        # Move the head at a constant rate when joystick is pressed.
-        def moveConstLR(self, direc):
-                
-        # Move the head at a constant rate when joystick is pressed.
-        def moveConstUD(self, direc):
+
+        # Move the head according to a winch style system.
+        # Work in progress. Do not use
+        def manualMove(self, x, y):
+
+                # Have the head move left if joystick pushes left.
+                # Have the head move right if joystick pushes right.
+                # Otherwise, keep horizontal movement at current position.
+                if x > 0.5:
+                        yawMove = yaw_R
+                elif x < -0.5:
+                        yawMove = yaw_L
+                else:
+                        yawMove = self.maestro.getPosition(CH_YAW)
+
+                # Have the head move up if joystick pushes up.
+                # Have the head move down if joystick pushes down.
+                # Otherwise, keep vertical movement at current position.
+                if y > 0.5:
+                        pitchMove = pitch_U
+                elif y < -0.5:
+                        pitchMove = pitch_D
+                else:
+                        pitchMove = self.maestro.getPosition(CH_PITCH)
+
+                # Move the head
+                self.moveYaw(yawMove, YAW_SPEED)
+                self.movePitch(pitchMove, PITCH_SPEED)                        
 
         # Set the head to an exact position corresponding to a joystick.
 	def moveAbs(self, x, y):

@@ -90,7 +90,7 @@ try:
 	while True :
 		# Drive
 		if j1.connected():
-                        if Disable == False:
+                        if driveDisabled == False:
                                 if slowDriveMode == True:
                                         drivetrain.drive(j1.leftX() * .4, -(j1.leftY() * .5))
                                 else:
@@ -105,26 +105,18 @@ try:
                 
                 # if the joystick is centered for 5 seconds, change to idle mode
                 #print mode,j.rightX(),j.rightY()
-                if (abs(j.rightX()) <.1 and abs(j.rightY()) < .1 and abs(j.leftTrigger()) < .1 and abs(j.rightTrigger()) < .1 and abs(j.leftX()) <.1 and abs(j.leftY()) < .1):
+                if (abs(j1.rightX()) <.1 and abs(j1.rightY()) < .1 and abs(j2.leftTrigger()) < .1 and abs(j2.rightTrigger()) < .1):
                         if j2.B() or time.time() - idleTimer >= 12:
                                 mode = "idle"
+                                head.stopHead()
                 else:
                         mode = "manual"
                         idleTimer = time.time()
+                        
                 # Interactive control
                 if mode == "manual":
-                        # head.moveAbs(j.rightX() or j.leftX() * .5, j.rightY())
                         # Move head in direction of right joystick
-                        if j1.rightX() > 0.8:
-                                head.moveYaw(1, yawSpeed)
-                        elif j1.rightX() < -0.8:
-                                head.moveYaw(-1, yawSpeed)
-                        if j1.rightY() > 0.8:
-                                head.movePitch(1, pitchSpeed)
-                        elif j1.rightY() < -0.8:
-                                head.movePitch(-1, pitchSpeed)
-                        else:
-                                head.stopHead()
+                        head.manualMove(j1.leftX() * .5, j1.rightY())
                                 
                         # Move the brow
                         if j2.rightTrigger() > .5:
@@ -135,6 +127,10 @@ try:
                                 idleTimer = time.time()
                         else:
                                 head.browCenter()
+
+                        # Move head back to center position
+                        if j1.whenRightThumbstick():
+                                head.lookCentered()
                                 
                 if mode == "idle":
                         # Is it time to start an idle move?
