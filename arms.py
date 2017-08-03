@@ -8,6 +8,7 @@ RIGHT_ELBOW_LIMITS = [0, 0]
 LEFT_ELBOW_LIMITS = [0, 0]
 MAX_SPEED = 60
 MIN_SPEED = 1
+ACCELERATION = 1
 
 class Arms:
     # Shoulder: (Maestro channel, analog channel) | Hand: Maestro channel | Elbow: (Maestro channel, analog channel)
@@ -45,12 +46,25 @@ class Joint:
 
     #speed scaling from 0 through 1, -1 is unrestricted
     #position scaling through -1 through 1
-    def moveAbs(self, postition, speed = -1):
+    def _move_controller(self, target, speed = -1):
         if self.moveable() == True:
             #speed of -1 is unrestricted
             if speed == -1:
                 speed = 0
             else:
-                speed = (MAX_SPEED - MIN_SPEED) * speed + MIN_SPEED
+                speed = abs((MAX_SPEED - MIN_SPEED) * speed) + MIN_SPEED
 
-            position = abs((positions(2) - positions(0)) * position) + positions(0)
+            if position >= 0:
+                target = abs((self.targets[2] - self.targets[1]) * target) + self.targets[1]
+            else:
+                target = abs((self.targets[1] - self.targets[0]) * target) + self.targets[0]
+
+    def move_abs(self, position, speed = 0):
+        if self.servo:
+            if speed == 0:
+                speed = -1
+            self._move_controller(position, speed)
+        else:
+            self.target = abs((self.limits[1] - self.limits[0]) * position) + self.limits[0]
+            self._move_controller(speed, ACCELERATION)
+            #TODO: PID control for completion
