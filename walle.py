@@ -96,18 +96,13 @@ try:
         mode = "manual"
 	while True :
 		# Drive
+		arms.update()
 		if j1.connected():
                         if driveDisabled == False:
                                 if slowDriveMode == True:
                                         drivetrain.drive(j1.leftX() * .4, -(j1.leftY() * .5))
                                 else:
-<<<<<<< HEAD
-                                        drivetrain.drive(j.leftX() * .40, -(j.leftY() * .5))
-
-=======
                                         drivetrain.drive(j1.leftX() * .5, -(j1.leftY()))
-
->>>>>>> a8a1f40ceefa8f703ae4e5539be0d1a7735cbc82
 		else:
 			drivetrain.stop()
 
