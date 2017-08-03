@@ -17,14 +17,14 @@ class PID():
 
     """PID Controller"""
 
-    def __init__(self, Kp=1.0, Ki=0.0, Kd=0.0, min=-99999.0, max=99999.0, target=0.0):
+    def __init__(self, Kp=1.0, Ki=0.0, Kd=0.0, minimum=-99999.0, maximum=99999.0, target=0.0):
         """Initalize PID P, I and D contants, set allowable output range and
         establish target."""
         self.Kp = Kp
         self.Ki = Ki
         self.Kd = Kd
-        self.min = min           #Calculated output minimum
-        self.max = max           #Calculated output minimum
+        self.min = minimum           #Calculated output minimum
+        self.max = maximum           #Calculated output minimum
         self.target = target     #the value being sought
         # internal use variables for calc method
         self._prevTime = time()   #used to calculate delta time

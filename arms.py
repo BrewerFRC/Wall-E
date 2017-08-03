@@ -1,5 +1,6 @@
 import maestro
 import protocol
+import pid
 
 #Potentiometer limits for the different joints, lowest first
 RIGHT_SHOULDER_LIMITS = [0, 0]
@@ -21,8 +22,8 @@ class Arms:
         self.right_hand = maestro.Controller(ch_right_hand)
 
 class Joint:
-    # Limits: [upper, lower], Speeds: [backward, stop, forward]
-    def __init__(self, maestro_channel, pot_channel=None, limits=None, targets=[4000, 6000, 8000], servo=False):
+    # Limits: [upper, lower], Targets: [backward, stop, forward], pidTerms: [P, I, D, [min, max]]
+    def __init__(self, maestro_channel, pot_channel=None, limits=None, targets=[4000, 6000, 8000], servo=False, pidTerms=[0, 0, 0, [-1, 1]]):
         self.controller = maestro.Controller(channel)
         if not pot_channel == None:
             self.pot = protocol.Potentiometer(pot_channel)
@@ -31,6 +32,7 @@ class Joint:
             self.positions = targets
         else:
             self.speeds = targets
+            self.pid = pid.Pid(pidTerms[0], pidTerms[1], pidTerms[2], pidTerms[3][0], pidTerms[3][1])
         self.servo = servo
 
     def moveable(self):
@@ -65,6 +67,8 @@ class Joint:
                 speed = -1
             self._move_controller(position, speed)
         else:
-            self.target = abs((self.limits[1] - self.limits[0]) * position) + self.limits[0]
-            self._move_controller(speed, ACCELERATION)
+            self.pid.target = abs((self.limits[1] - self.limits[0]) * position) + self.limits[0]
             #TODO: PID control for completion
+
+    def update(self):
+        self._move_controller(pid.calc(self.pot.read()), ACCELERATION)
