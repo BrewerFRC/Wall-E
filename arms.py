@@ -10,6 +10,7 @@ LEFT_ELBOW_LIMITS = [0, 0]
 MAX_SPEED = 60
 MIN_SPEED = 1
 ACCELERATION = 1
+ALLOWABLE_ERROR = 0 #TODO: find allowable error
 
 class Arms:
     # Shoulder: (Maestro channel, analog channel) | Hand: Maestro channel | Elbow: (Maestro channel, analog channel)
@@ -72,3 +73,9 @@ class Joint:
 
     def update(self):
         self._move_controller(pid.calc(self.pot.read()), ACCELERATION)
+
+    def moving(self):
+        if self.servo:
+            return False
+        if abs(self.pot.read - self.pid.target) > ALLOWABLE_ERROR
+            return True
