@@ -22,14 +22,6 @@ class Arms:
         self.left_hand = maestro.Controller(ch_left_hand)
         self.right_hand = maestro.Controller(ch_right_hand)
 
-    def update(self):
-        self.left_shoulder.update()
-        self.right_shoulder.update()
-        self.left_elbow.update()
-        self.right_elbow.update()
-        self.left_hand()
-        self.right_hand()
-
 class Joint:
     # Limits: [upper, lower], Targets: [backward, stop, forward], pidTerms: [P, I, D, [min, max]]
     def __init__(self, maestro_channel, pot_channel=None, limits=None, targets=[4000, 6000, 8000], servo=False, pidTerms=[0, 0, 0, [-1, 1]]):
@@ -87,3 +79,6 @@ class Joint:
             return False
         if abs(self.pot.read - self.pid.target) > ALLOWABLE_ERROR
             return True
+
+    def complete(self):
+        return not self.moving()
