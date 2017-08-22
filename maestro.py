@@ -38,7 +38,7 @@ class Controller:
         # Servo minimum and maximum targets can be restricted to protect components.
         self.Mins = [0] * 24
         self.Maxs = [0] * 24
-        
+
     # Cleanup by closing USB serial port
     def close(self):
         self.usb.close()
@@ -61,7 +61,7 @@ class Controller:
     # Return Minimum channel range value
     def getMax(self, chan):
         return self.Max[chan]
-        
+
     # Set channel to a specified target value.  Servo will begin moving based
     # on Speed and Acceleration parameters previously set.
     # Target values will be constrained within Min and Max range, if set.
@@ -76,7 +76,7 @@ class Controller:
         # if Max is defined and Target is above, force to Max
         if self.Maxs[chan] > 0 and target > self.Maxs[chan]:
             target = self.Maxs[chan]
-        #    
+        #
         lsb = target & 0x7f #7 bits for least significant byte
         msb = (target >> 7) & 0x7f #shift 7 and take next 7 bits for msb
         # Send Pololu intro, device number, command, channel, and target lsb/msb
@@ -84,7 +84,7 @@ class Controller:
         self.usb.write(cmd)
         # Record Target value
         self.Targets[chan] = target
-        
+
     # Set speed of channel
     # Speed is measured as 0.25microseconds/10milliseconds
     # For the standard 1ms pulse width change to move a servo between extremes, a speed
@@ -107,7 +107,7 @@ class Controller:
         # Send Pololu intro, device number, command, channel, accel lsb, accel msb
         cmd = self.PololuCmd + chr(0x09) + chr(chan) + chr(lsb) + chr(msb)
         self.usb.write(cmd)
-    
+
     # Get the current position of the device on the specified channel
     # The result is returned in a measure of quarter-microseconds, which mirrors
     # the Target parameter of setTarget.
@@ -124,7 +124,7 @@ class Controller:
 
     # Test to see if a servo has reached its target position.  This only provides
     # useful results if the Speed parameter is set slower than the maximum speed of
-    # the servo. 
+    # the servo.
     # ***Note if target position goes outside of Maestro's allowable range for the
     # channel, then the target can never be reached, so it will appear to allows be
     # moving to the target.  See setRange comment.
@@ -133,7 +133,7 @@ class Controller:
             if self.getPosition(chan) <> self.Targets[chan]:
                 return True
         return False
-    
+
     # Have all servo outputs reached their targets? This is useful only if Speed and/or
     # Acceleration have been set on one or more of the channels. Returns True or False.
     def getMovingState(self):
