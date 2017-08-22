@@ -21,6 +21,7 @@ class Arms:
         self.left_hand = maestro.Controller(ch_left_hand)
         self.right_hand = maestro.Controller(ch_right_hand)
 
+    # Updates PID actions of all joints on arms.
     def update(self):
         self.left_shoulder.update()
         self.right_shoulder.update()
@@ -69,14 +70,18 @@ class Joint:
             else:
                 target = abs((self.targets[1] - self.targets[0]) * target) + self.targets[0]
 
+    # Move joint (motor or servo) to specfic position along its range of motion
+    # Position: 0 through 1, Speed: 0 through 1
     def move_abs(self, position, speed = 0):
         if self.servo:
             if speed == 0:
                 speed = -1
             self._move_controller(position, speed)
         else:
+            self.pid.reset()
             self.pid.target = abs((self.limits[1] - self.limits[0]) * position) + self.limits[0]
             #TODO: PID control for completion
 
+    # Updates PID actions of joint.
     def update(self):
         self._move_controller(pid.calc(self.pot.read()), ACCELERATION)

@@ -52,7 +52,7 @@ class Head():
 		#maestro.setRange(CH_BROW, BROW_U, BROW_D)
 		maestro.setAccel(CH_YAW, YAW_ACCELERATION)
 		maestro.setAccel(CH_PITCH, PITCH_ACCELERATION)
-        
+
         def _speedCalc(self, pitch, yaw,throttle=1.0):
                 yaw_delta = abs(yaw - self.maestro.getPosition(CH_YAW))
                 pitch_delta = abs(pitch - self.maestro.getPosition(CH_PITCH))
@@ -70,7 +70,7 @@ class Head():
                         spd_ratio = yaw_time / pitch_time
                         yaw_spd = int(spd_ratio * YAW_SPEED * throttle)
                         return (int(PITCH_SPEED * throttle), int(yaw_spd))
-                
+
 	def isUp(self):
 		return between(self.maestro.getPosition(CH_PITCH),PITCH_CU,PITCH_U)
 	def isDown(self):
@@ -97,15 +97,15 @@ class Head():
                 pass
 	def isHeadMoving(self):
                 pass
-        
+
 	def movePitch(self, position, speed):
                 self.maestro.setSpeed(CH_PITCH, speed)
                 self.maestro.setTarget(CH_PITCH, position)
-                
+
 	def moveYaw(self, position, speed):
                 self.maestro.setSpeed(CH_YAW, speed)
                 self.maestro.setTarget(CH_YAW, position)
-                
+
 	def moveBrow(self, position):
                 self.maestro.setSpeed(CH_BROW, BROW_SPEED)
                 self.maestro.setTarget(CH_BROW, position)
@@ -149,8 +149,8 @@ class Head():
                 self.maestro.setSpeed(CH_PITCH, p)
                 self.maestro.setTarget(CH_YAW, yaw)
                 self.maestro.setTarget(CH_PITCH, pitch)
-                
-        # Move head to a random coordinate to the left     
+
+        # Move head to a random coordinate to the left
 	def lookLeft(self, throttle = 1.0):
                 pitchChange = random.randint(-600, 600)
                 pitch = self.maestro.getPosition(CH_PITCH) + pitchChange
@@ -234,7 +234,7 @@ class Head():
 
                 # Move the head
                 self.moveYaw(yawMove, YAW_SPEED)
-                self.movePitch(pitchMove, PITCH_SPEED)                        
+                self.movePitch(pitchMove, PITCH_SPEED)
 
         # Set the head to an exact position corresponding to a joystick.
 	def moveAbs(self, x, y):

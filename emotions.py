@@ -53,7 +53,6 @@ class Emotions:
             #time.sleep(0.5)
             #playSnd("Jitters.mp3")
 
-
         def startled(self):
             playSnd("Whoohoo.mp3")
             self.head.lookCentered()
