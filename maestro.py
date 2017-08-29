@@ -157,3 +157,27 @@ class Controller:
     def stopScript(self):
         cmd = self.PololuCmd + chr(0x24)
         self.usb.write(cmd)
+
+class Channel:
+
+    def __init__(self, channel, maestro):
+        self.channel = channel
+        self.maestro = maestro
+
+    def setMin(self, min):
+        self.maestro.setRange(self.channel, min, self.maestro.getMax(self.channel))
+
+    def setMax(self, max):
+        self.maestro.setRange(self.channel, self.maestro.getMin(self.channel), max)
+
+    def setTarget(self, target):
+        self.maestro.setTarget(self.channel, target)
+
+    def setTargetSpeed(self, speed):
+        self.maestro.setSpeed(self.channel, speed)
+
+    def getPosition(self):
+        return self.maestro.getPosition(self.channel)
+
+    def setAcceleration(self, acceleration):
+        self.maestro.setAccel(self.channel, acceleration)

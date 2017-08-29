@@ -12,30 +12,25 @@ LEFT_ELBOW_LIMITS = [0, 0]
 MAX_SPEED = 60
 MIN_SPEED = 1
 ACCELERATION = 1
-ALLOWABLE_ERROR = 0 #TODO: find allowable error
+TOLERANCE = 0 #TODO: find allowable error
 
 class Arms:
-    def __init__(self, ch_left_shoulder=0, ch_right_shoulder=1, ch_left_elbow=2, ch_right_elbow=3, ch_left_hand=4, ch_right_hand=5):
+    def __init__(self, ch_left_shoulder=0, ch_right_shoulder=1, ch_left_elbow=2, ch_right_elbow=3, ch_left_hand=4, ch_right_hand=5, maestro):
+        self.maestro = maestro
         self.left_shoulder = Joint(ch_left_shoulder)
         self.right_shoulder = Joint(ch_right_shoulder)
         self.left_elbow = Joint(ch_left_elbow)
         self.right_elbow = Joint(ch_right_elbow)
-        self.left_hand = maestro.Controller(ch_left_hand)
-        self.right_hand = maestro.Controller(ch_right_hand)
-
-    # Updates PID actions of all joints on arms.
-    def update(self):
-        self.left_shoulder.update()
-        self.right_shoulder.update()
-        self.left_elbow.update()
-        self.right_elbow.update()
-        self.left_hand()
-        self.right_hand()
+        self.left_hand = Joint(ch_left_hand, maestro=True)
+        self.right_hand = Joint(ch_right_hand, maestro=True)
 
 class Joint:
     # Limits: [upper, lower]
-    def __init__(self, channel, limits=None, servo=False):
-        self.controller = arduino.getServoMotor(channel)
+    def __init__(self, channel, limits=[0, 180], maestro=False):
+        if maestro:
+            self.controller = self.maestro.Channel(channel)
+        else:
+            self.controller = arduino.getServoMotor(channel)
         if limits:
             self.controller.setMin(limits[0])
             self.controller.setMax(limits[1])
@@ -49,42 +44,17 @@ class Joint:
             return True
         return False
 
-    #speed scaling from 0 through 1, -1 is unrestricted
-    #position scaling through -1 through 1
-    def _move_controller(self, target, speed = -1):
-        if self.moveable() == True:
-            #speed of -1 is unrestricted
-            if speed == -1:
-                speed = 0
-            else:
-                speed = abs((MAX_SPEED - MIN_SPEED) * speed) + MIN_SPEED
-
-            if position >= 0:
-                target = abs((self.targets[2] - self.targets[1]) * target) + self.targets[1]
-            else:
-                target = abs((self.targets[1] - self.targets[0]) * target) + self.targets[0]
-
     # Move joint (motor or servo) to specfic position along its range of motion
     # Position: 0 through 1, Speed: 0 through 1
     def move_abs(self, position, speed = 0):
-        if self.servo:
-            if speed == 0:
-                speed = -1
-            self._move_controller(position, speed)
-        else:
-            self.pid.reset()
-            self.pid.target = abs((self.limits[1] - self.limits[0]) * position) + self.limits[0]
-            #TODO: PID control for completion
+        self.controller.setTargetSpeed(speed)
+        self.controller.setTarget(position)
 
-    # Updates PID actions of joint.
-    def update(self):
-        self._move_controller(pid.calc(self.pot.read()), ACCELERATION)
-
+    # Returns whether or not the motor has reached its target location.
     def moving(self):
-        if self.servo:
-            return False
-        if abs(self.pot.read - self.pid.target) > ALLOWABLE_ERROR
+        if abs(self.controller.getPosition() - self.controller.target) < TOLERANCE:
             return True
+        return False
 
     def complete(self):
         return not self.moving()

@@ -67,7 +67,7 @@ drivetrain = drive.DriveTrain(servo,CH_RIGHT_MOTOR,CH_LEFT_MOTOR)
 # Head servo
 head = head.Head(servo)
 # Arm controller
-arms = arms.Arms()
+arms = arms.Arms(maestro=servo)
 # Emotions
 emotion = emotions.Emotions(head, arms)
 # Sound
