@@ -1,6 +1,8 @@
-import maestro
+import arduinocontroller
 import protocol
 import pid
+
+arduino = arduinocontroller.Arduino()
 
 #Potentiometer limits for the different joints, lowest first
 RIGHT_SHOULDER_LIMITS = [0, 0]
@@ -13,12 +15,11 @@ ACCELERATION = 1
 ALLOWABLE_ERROR = 0 #TODO: find allowable error
 
 class Arms:
-    # Shoulder: (Maestro channel, analog channel) | Hand: Maestro channel | Elbow: (Maestro channel, analog channel)
-    def __init__(self, ch_left_shoulder=(2,0), ch_right_shoulder=(3,0), ch_left_elbow=(0,2), ch_right_elbow=(1,3), ch_left_hand=4, ch_right_hand=5):
-        self.left_shoulder = Joint(ch_left_shoulder[0], ch_left_shoulder[1])
-        self.right_shoulder = Joint(ch_right_shoulder[0], ch_right_shoulder[1])
-        self.left_elbow = Joint(ch_left_elbow[0], ch_left_elbow[1])
-        self.right_elbow = Joint(ch_right_elbow[0], ch_right_elbow[1])
+    def __init__(self, ch_left_shoulder=0, ch_right_shoulder=1, ch_left_elbow=2, ch_right_elbow=3, ch_left_hand=4, ch_right_hand=5):
+        self.left_shoulder = Joint(ch_left_shoulder)
+        self.right_shoulder = Joint(ch_right_shoulder)
+        self.left_elbow = Joint(ch_left_elbow)
+        self.right_elbow = Joint(ch_right_elbow)
         self.left_hand = maestro.Controller(ch_left_hand)
         self.right_hand = maestro.Controller(ch_right_hand)
 
@@ -32,26 +33,18 @@ class Arms:
         self.right_hand()
 
 class Joint:
-    # Limits: [upper, lower], Targets: [backward, stop, forward], pidTerms: [P, I, D, [min, max]]
-    def __init__(self, maestro_channel, pot_channel=None, limits=None, targets=[4000, 6000, 8000], servo=False, pidTerms=[0, 0, 0, [-1, 1]]):
-        self.controller = maestro.Controller(channel)
-        if not pot_channel == None:
-            self.pot = protocol.Potentiometer(pot_channel)
-        self.limits = limits
-        if servo:
-            self.positions = targets
-        else:
-            self.speeds = targets
-            self.pid = pid.Pid(pidTerms[0], pidTerms[1], pidTerms[2], pidTerms[3][0], pidTerms[3][1])
-        self.servo = servo
+    # Limits: [upper, lower]
+    def __init__(self, channel, limits=None, servo=False):
+        self.controller = arduino.getServoMotor(channel)
+        if limits:
+            self.controller.setMin(limits[0])
+            self.controller.setMax(limits[1])
 
     def moveable(self):
         if self.limits == None:
             return True
-        if self.pot == None:
-            return False
 
-        position = self.pot.read()
+        position = self.controller.getPosition()
         if position <= self.limits[1] and position >= self.limits[0]:
             return True
         return False
