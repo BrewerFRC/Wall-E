@@ -64,6 +64,10 @@ class Emotions:
             #playSnd("Walle Name.mp3")
             playSnd ("Walle Name.mp3")
 
+		def wave(self):
+			#TODO: Add wave movements
+			pass
+
         # function to select an emotion
         def Outburst(self):
                 selectEm = random.randint(0,5)
