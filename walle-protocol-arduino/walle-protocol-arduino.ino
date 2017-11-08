@@ -1,8 +1,12 @@
 #include <Servo.h>
-Servo servo;
 
+void setup() {
+  Serial.begin(115200);
+  Serial.print("Setup.");
+}
+
+Servo servo;
 class Motor {
-  
   int potValue;
   int potMax;
   int potMin;  
@@ -24,9 +28,7 @@ class Motor {
     servo.attach(channel + 2);
     Serial.println("Constructor completed");
   }
-  Motor() {
-    
-  }
+  Motor() {}
 
   int getTarget() {
     return motorTarget;
@@ -58,8 +60,6 @@ class Motor {
   }
   void update() {
     potValue = readPot();
-    Serial.print("potValue ");
-    Serial.println(potValue);
     
     error = ((motorTarget - potValue));
     
@@ -83,8 +83,6 @@ class Motor {
     }
 
     servo.write(motorSpeed);
-    Serial.print("Setting motor to ");
-    Serial.println(motorSpeed);
   }
 };
 
@@ -133,7 +131,11 @@ class Controller {
 
   void update() {
     //If motor failed to initialize, return.
-
+    Serial.print("Motor Class Target: ");
+    Serial.println(this->motor.getTarget());
+    Serial.print("Controller Class Target: ");
+    Serial.println(this->target);
+    
     //Calculate the error in target position
     int targetError = this->target - this->motor.getTarget();
     int targetSign = 1;
@@ -155,32 +157,61 @@ class Controller {
     }
     speedError = abs(speedError);
     this->speed += sign*(min(this->acceleration, speedError)); 
-
+    Serial.print("Speed: ");
+    Serial.println(this->speed);
+    Serial.print("Target Error: ");
+    Serial.println(targetError);
     //Limit change change in target position to speed.
-    motor.setTarget(motor.getTarget() + targetSign*(min(this->speed, targetError)));
+    motor.setTarget(motor.getTarget() - targetSign*(min(this->speed, targetError)));
 
     //Update components
     motor.update();
   }
 };
 
+Controller getController(int channel);
 
+Controller ch0(0, 1024, 20);
+/*
+Controller ch1(1, 1024, 20);
+Controller ch2(2, 1024, 20);
+Controller ch3(3, 1024, 20);*/
 
-void setup() {
-  Serial.begin(115200);
+Controller getController(int channel) {
+  if (channel == 0) {
+    return ch0;
+  }
+  /*else if (channel == 1) {
+    return ch1;
+  }
+  else if (channel == 2) {
+    return ch2;
+  }
+  else if (channel == 3) {
+    return ch3;
+  }*/
+  return ch0;
 }
 
-
+void update() {
+  ch0.update();
+  /*ch1.update();
+  ch2.update();
+  ch3.update();*/
+}
 
 void readCommand() {
+  Serial.println("Read command.");
   int command[5];
   int pos = 0;
 
-  while(Serial.available() and pos < 5) {
+  while(Serial.available() > 0 and pos < 5) {
     command[pos] = Serial.read();
     pos++;
   }
-
+  if (pos <= 3) {
+    return;
+  }
   //Decompose command
   char action = (char)command[0];
   int channel = command[1];
@@ -194,50 +225,34 @@ void readCommand() {
   //Read command
   if (action == "T") {
     c.setTarget(value);
+    Serial.print("Set target to: ");
+    Serial.println(value);
   }
   else if (action == "S") {
     c.setSpeed(value);
+    Serial.print("Set speed to: ");
+    Serial.println(value);
   }
   else if (action == "A") {
     c.setAcceleration(value);
+    Serial.print("Set acceleration to: ");
+    Serial.println(value);
   }
   else if (action == "P") {
-    Serial.print("P" + channel + String(min(999, c.getPosition())));
+    Serial.print("P");
+    Serial.print(channel);
+    Serial.print(String(min(999, c.getPosition())));
   }
   else if (action == "M") {
     c.setMax(value);
+    Serial.print("Set maximum to: ");
+    Serial.print(value);
   }
   else if (action == "m") {
     c.setMin(value);
+    Serial.print("Set minimum to: ");
+    Serial.println(value);
   }
-}
-
-Controller ch0(0, 1024, 20);
-Controller ch1(1, 1024, 20);
-Controller ch2(2, 1024, 20);
-Controller ch3(3, 1024, 20);
-
-Controller getController(int channel) {
-  if (channel == 0) {
-    return ch0;
-  }
-  else if (channel == 1) {
-    return ch1;
-  }
-  else if (channel == 2) {
-    return ch2;
-  }
-  else if (channel == 3) {
-    return ch3;
-  }
-  return ch1;
-}
-
-void update() {
-  ch0.update();
-  ch1.update();
-  ch2.update();
-  ch3.update();
 }
 
 void loop() {
