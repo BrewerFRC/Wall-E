@@ -1,5 +1,7 @@
 #include <Servo.h>
 
+String currentCommand = "";
+
 void setup() {
   Serial.begin(115200);
   Serial.print("Setup.");
@@ -106,12 +108,12 @@ class Controller {
 
   //Set acceleration in "potentiometer steps / cycles^2".
   void setAcceleration(int acceleration) {
-    this->acceleration = acceleration;
+    this->acceleration = min(acceleration, 99);
   }
 
   //Set speed in "potentiometer steps / cycles".
   void setSpeed(int speed) {
-    this->targetSpeed = speed;
+    this->targetSpeed = min(speed, 99);
   }
 
   //Set minimum position from 0-1023.
@@ -145,24 +147,25 @@ class Controller {
     targetError = abs(targetError);
 
     //Calculate the error in speed and limit its change to acceleration
-    int targetSpeed = this->targetSpeed;
+    /*int targetSpeed = this->targetSpeed;
     int n = this->speed / this->acceleration;
     if (targetError <= n * (n + 1) / 2 * acceleration) {
       targetSpeed = 0;
     }
+   
     int speedError = this->targetSpeed - this->speed;
     int sign = 1;
     if (speedError < 0) {
       sign = -1;
     }
     speedError = abs(speedError);
-    this->speed += sign*(min(this->acceleration, speedError)); 
+    this->speed += sign*(min(this->acceleration, speedError));*/
     Serial.print("Speed: ");
     Serial.println(this->speed);
     Serial.print("Target Error: ");
     Serial.println(targetError);
     //Limit change change in target position to speed.
-    motor.setTarget(motor.getTarget() - targetSign*(min(this->speed, targetError)));
+    motor.setTarget(motor.getTarget() - targetSign*(min(1/(100-this->speed), targetError)));
 
     //Update components
     motor.update();
@@ -201,17 +204,18 @@ void update() {
 }
 
 void readCommand() {
-  Serial.println("Read command.");
-  int command[5];
-  int pos = 0;
-
+  
   while(Serial.available() > 0 and pos < 5) {
-    command[pos] = Serial.read();
-    pos++;
+    char c = Serial.read();
+    if (c != "\n") {
+     currentCommand = currentCommand + c;
+    }  else {
+      evaluteCommand(currentCommand);
+    }
   }
-  if (pos <= 3) {
-    return;
-  }
+}
+//Brent wants it as evalute
+void evaluteCommand(String command) {
   //Decompose command
   char action = (char)command[0];
   int channel = command[1];
@@ -241,7 +245,7 @@ void readCommand() {
   else if (action == "P") {
     Serial.print("P");
     Serial.print(channel);
-    Serial.print(String(min(999, c.getPosition())));
+    Serial.print(String(min(180, c.getPosition())));
   }
   else if (action == "M") {
     c.setMax(value);
