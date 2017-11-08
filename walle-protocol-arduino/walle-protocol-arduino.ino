@@ -217,11 +217,11 @@ void readCommand() {
 //Brent wants it as evalute
 void evaluteCommand(String command) {
   //Decompose command
-  char action = (char)command[0];
-  int channel = command[1];
+  char action = command.charAt(1);
+  int channel = (int)command.charAt(0);
   String val = "";
   for (int i = 2;i < sizeof(command);i++) {
-    val += (char)command[i];
+    val += command.charAt(i);
   }
   int value = val.toInt();
   Controller c = getController(channel);
