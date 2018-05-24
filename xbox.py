@@ -55,7 +55,8 @@ class Joystick:
         self.pressRJL = False
         self.pressRJR = False
         
-        self.proc = subprocess.Popen(['xboxdrv','--no-uinput','--detach-kernel-driver' '--wid '+str(port)], stdout=subprocess.PIPE)
+#        self.proc = subprocess.Popen(['xboxdrv','--no-uinput','--detach-kernel-driver' '--wid '+str(port)], stdout=subprocess.PIPE)
+        self.proc = subprocess.Popen(['xboxdrv','--no-uinput','--detach-kernel-driver'], stdout=subprocess.PIPE)
         self.pipe = self.proc.stdout
         #
         self.connectStatus = False  #will be set to True once controller is detected and stays on
@@ -75,7 +76,7 @@ class Joystick:
                 if response[0:7] == 'No Xbox':
                     raise IOError('No Xbox controller/receiver found')
                 # Success if we see the following
-                if response[0:12] == 'Press Ctrl-c':
+                if response[0:12].lower() == 'press ctrl-c':
                     found = True
                 # If we see 140 char line, we are seeing valid input
                 if len(response) == 140:

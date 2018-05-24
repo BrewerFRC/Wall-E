@@ -13,7 +13,7 @@ import time
 #
 def playSnd(file) :
 	global channel
-	file = "/home/pi/walle/Sounds/" + file
+	file = "/home/pi/Wall-E/Sounds/" + file
 	if file[-3:] == "wav":
 		channel.play(pygame.mixer.Sound(file))
 	else:
