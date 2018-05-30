@@ -1,15 +1,8 @@
+import time
 
 emotions = {}
-time = 0
-
-def update():
-    for e in emotions:
-        if e.isRunning():
-            e.update()
-    time++
-
 class Emotion:
-    def __init__(self):
+    def __init__(self, time=None, trigger=None):
         self.actions = []
         self.runtime = []
 
@@ -19,7 +12,7 @@ class Emotion:
     def run(self):
         global time
         self.runtime = []
-        self.startTime = time
+        self.startTime = time.time()
         for a in self.actions:
             runtime.append(a)
 
@@ -29,15 +22,20 @@ class Emotion:
             for a in self.runtime:
                 if a.ready():
                     if a.time:
-                        pass
+                        if time.time() >= a.time:
+                            a.run()
                     elif a.trigger:
-                        pass
+                        if a.trigger.complete():
+                            a.run()
                     else:
                         a.run()
                 if a.complete():
+                    self.runtime.remove(a)
                     a.setReady()
 
     def isRunning(self):
         return len(self.runtime > 0)
     def complete(self):
         return not isRunning()
+    def setReady():
+        pass

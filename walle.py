@@ -15,12 +15,8 @@
 ############################################
 
 import xbox
-import maestro
-import pygame
-import random
-import drive
-import head
-import time
+from controllers import controllers, drivetrain, head, arms
+import pygame, random, time
 import emotions
 
 # CONSTANTS
@@ -60,16 +56,10 @@ def playSnd(file) :
 # Joystick
 j1 = xbox.Joystick(0)
 j2 = xbox.Joystick(1)
-# Maestro Controllers
-servo = maestro.Controller()
-# DriveTrain
-drivetrain = drive.DriveTrain(servo,CH_RIGHT_MOTOR,CH_LEFT_MOTOR)
-# Head servo
-head = head.Head(servo)
-# Arm controller
-arms = arms.Arms(maestro=servo)
+
 # Emotions
 emotion = emotions.Emotions(head, arms)
+
 # Sound
 pygame.mixer.init(22050, -16, 1, 1024)
 channel = pygame.mixer.Channel(1)

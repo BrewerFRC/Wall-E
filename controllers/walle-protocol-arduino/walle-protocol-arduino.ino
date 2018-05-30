@@ -155,7 +155,7 @@ class Controller {
    
     int speedError = this->targetSpeed - this->speed;
     int sign = 1;
-    if (speedError < 0) {
+    if (speedError < 0) {12`
       sign = -1;
     }
     speedError = abs(speedError);

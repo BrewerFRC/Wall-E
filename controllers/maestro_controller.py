@@ -173,6 +173,9 @@ class Channel:
     def setTarget(self, target):
         self.maestro.setTarget(self.channel, target)
 
+    def getPosition(self):
+        return self.maestro.getPosition(self.channel)
+
     def setTargetSpeed(self, speed):
         self.maestro.setSpeed(self.channel, speed)
 

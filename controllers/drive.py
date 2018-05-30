@@ -1,22 +1,21 @@
-#import maestro
+from controllers import controllers
 
 # For motor controllers, servo speed setting dampens acceleration (acts like inertia).
-# Higher values will reduce inertia (try values around 50 to 100) 
+# Higher values will reduce inertia (try values around 50 to 100)
 INERTIA = 60
 #
 
 class DriveTrain:
-        # Init drive train, passing maestro controller obj, and channel
-        # numbers for the motor servos Left and Right
-	def __init__(self, maestro,chLeft,chRight):
-		self.maestro = maestro
-		self.chRight = chRight
-		self.chLeft = chLeft
+    # Init drive train, passing maestro controller obj, and channel
+    # numbers for the motor servos Left and Right
+	def __init__(self, chLeft, chRight):
+		self.left = controllers.maestro.Controller(chRight)
+		self.right = controllers.maestro.Controller(chLeft)
 		# Init motor accel/speed params
-		self.maestro.setAccel(chRight,0)
-		self.maestro.setAccel(chLeft,0)
-		self.maestro.setSpeed(chRight,INERTIA)
-		self.maestro.setSpeed(chLeft,INERTIA)
+		self.left.setAcceleration(0)
+		self.right.setAcceleration(0)
+		self.left.setSpeed(INERTIA)
+		self.right.setSpeed(INERTIA)
 		# Right motor min/center/max vals
 		self.minR = 3000
 		self.centerR = 6000
@@ -32,7 +31,7 @@ class DriveTrain:
 		l = joyY
 		v = (1 - abs(r)) * l + l
 		w = (1 - abs(l)) * r + r
-		motorR = -(v + w) / 2  
+		motorR = -(v + w) / 2
 		motorL = (v - w) / 2
 		return (motorR, motorL)
 
@@ -53,13 +52,13 @@ class DriveTrain:
 	def drive(self, joyX, joyY):
 		(motorR, motorL) = self.arcadeMix(joyX, joyY)
 		(servoR, servoL) = self.maestroScale(motorR, motorL)
-		self.maestro.setTarget(self.chRight, servoR)
-		self.maestro.setTarget(self.chLeft, servoL)
+		self.left.setTarget(servoL)
+		self.right.setTarget(servoR)
 
 	# Set both motors to stopped (center) position
 	def stop(self):
-		self.maestro.setTarget(self.chRight, self.centerR)
-		self.maestro.setTarget(self.chLeft, self.centerL)
+		self.left.setTarget(self.centerL)
+		self.right.setTarget(self.centerR)
 
 	# Close should be used when shutting down Drive object
 	def close(self):

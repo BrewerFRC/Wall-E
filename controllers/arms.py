@@ -1,8 +1,6 @@
-import arduinocontroller
+from controllers import controllers
 import protocol
 import pid
-
-arduino = arduinocontroller.Arduino()
 
 #Potentiometer limits for the different joints, lowest first
 RIGHT_SHOULDER_LIMITS = [0, 0]
@@ -15,12 +13,9 @@ ACCELERATION = 1
 TOLERANCE = 0 #TODO: find allowable error
 
 class Arms:
-    def __init__(self, ch_left_shoulder=0, ch_right_shoulder=1, ch_left_elbow=2, ch_right_elbow=3, ch_left_hand=4, ch_right_hand=5, maestro):
-        self.maestro = maestro
+    def __init__(self, ch_left_shoulder=0, ch_right_shoulder=1, ch_left_hand=2, ch_right_hand=3):
         self.left_shoulder = Joint(ch_left_shoulder)
         self.right_shoulder = Joint(ch_right_shoulder)
-        self.left_elbow = Joint(ch_left_elbow)
-        self.right_elbow = Joint(ch_right_elbow)
         self.left_hand = Joint(ch_left_hand, maestro=True)
         self.right_hand = Joint(ch_right_hand, maestro=True)
 
@@ -28,9 +23,9 @@ class Joint:
     # Limits: [upper, lower]
     def __init__(self, channel, limits=[0, 180], maestro=False):
         if maestro:
-            self.controller = self.maestro.Channel(channel)
+            self.controller = controllers.maestro.Channel(channel)
         else:
-            self.controller = arduino.getServoMotor(channel)
+            self.controller = controllers.arduino.getMotor(channel)
         if limits:
             self.controller.setMin(limits[0])
             self.controller.setMax(limits[1])

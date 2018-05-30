@@ -12,8 +12,8 @@ class Arduino:
     def sendCommand(self, command):
         usb.write(command.encode())
 
-    def getServoMotor(self, channel):
-        return _ServoMotor(channel, self)
+    def getMotor(self, channel):
+        return _Motor(channel, self)
 
     def _read(self):
         timeout = time.time() + TIMEOUT

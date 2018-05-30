@@ -1,4 +1,4 @@
-import maestro
+from controllers import controllers
 import random
 
 # Servo channels
@@ -43,19 +43,22 @@ def between(x,limit1,limit2):
 # HEAD CLASS
 #
 
-class Head():
+class Head:
         # Provide maestro controller obj
-	def __init__(self, maestro):
-		self.maestro = maestro
-		#maestro.setRange(CH_YAW, YAW_R, YAW_L)
-		#maestro.setRange(CH_PITCH, PITCH_U, PITCH_D)
-		#maestro.setRange(CH_BROW, BROW_U, BROW_D)
-		maestro.setAccel(CH_YAW, YAW_ACCELERATION)
-		maestro.setAccel(CH_PITCH, PITCH_ACCELERATION)
+	def __init__(self):
+        self.yaw = controllers.maestro.Channel(CH_YAW)
+        self.pitch = controllers.maestro.Channel(CH_PITCH)
+        self.brow = controllers.maestro.Channel(CH_BROW)
+
+		self.yaw.setRange(YAW_R, YAW_L)
+		self.pitch.setRange(PITCH_U, PITCH_D)
+		self.brow.setRange(BROW_U, BROW_D)
+		self.yaw.setAcceleration(YAW_ACCELERATION)
+		self.pitch.setAcceleration(PITCH_ACCELERATION)
 
     def _speedCalc(self, pitch, yaw,throttle=1.0):
-        yaw_delta = abs(yaw - self.maestro.getPosition(CH_YAW))
-        pitch_delta = abs(pitch - self.maestro.getPosition(CH_PITCH))
+        yaw_delta = abs(yaw - self.yaw.getPosition())
+        pitch_delta = abs(pitch - self.pitch.getPosition())
         if yaw_delta == 0:
             yaw_delta = 1
         if pitch_delta == 0:
@@ -72,23 +75,23 @@ class Head():
             return (int(PITCH_SPEED * throttle), int(yaw_spd))
 
 	def isUp(self):
-		return between(self.maestro.getPosition(CH_PITCH),PITCH_CU,PITCH_U)
+		return between(self.pitch.getPosition(),PITCH_CU,PITCH_U)
 	def isDown(self):
-        return between(self.maestro.getPosition(CH_PITCH),PITCH_CD,PITCH_D)
+        return between(self.pitch.getPosition(),PITCH_CD,PITCH_D)
 	def isPitchCentered(self):
-        return between(self.maestro.getPosition(CH_PITCH),PITCH_CU,PITCH_CD)
+        return between(self.pitch.getPosition(),PITCH_CU,PITCH_CD)
 	def isLeft(self):
-        return between(self.maestro.getPosition(CH_YAW),YAW_L,YAW_CL)
+        return between(self.yaw.getPosition(),YAW_L,YAW_CL)
 	def isRight(self):
-        return between(self.maestro.getPosition(CH_YAW),YAW_R,YAW_CR)
+        return between(self.yaw.getPosition(),YAW_R,YAW_CR)
 	def isYawCentered(self):
-        return between(self.maestro.getPosition(CH_YAW),YAW_CL,YAW_CR)
+        return between(self.yaw.getPosition(),YAW_CL,YAW_CR)
 	def isBrowUp(self):
-        return self.maestro.getPosition(CH_BROW) >= BROW_U
+        return self.brow.getPosition() >= BROW_U
 	def isBrowDown(self):
-        return self.maestro.getPosition(CH_BROW) <= BROW_D
+        return self.brow.getPosition() <= BROW_D
 	def isBrowCentered(self):
-        return self.maestro.getPosition(CH_BROW) == BROW_C
+        return self.brow.getPosition() == BROW_C
 	def isPitchMoving(self):
         pass
 	def isYawMoving(self):
@@ -99,16 +102,16 @@ class Head():
         pass
 
 	def movePitch(self, position, speed):
-        self.maestro.setSpeed(CH_PITCH, speed)
-        self.maestro.setTarget(CH_PITCH, position)
+        self.pitch.setSpeed(speed)
+        self.pitch.setTarget(position)
 
 	def moveYaw(self, position, speed):
-        self.maestro.setSpeed(CH_YAW, speed)
-        self.maestro.setTarget(CH_YAW, position)
+        self.yaw.setSpeed(speed)
+        self.yaw.setTarget(position)
 
 	def moveBrow(self, position):
-        self.maestro.setSpeed(CH_BROW, BROW_SPEED)
-        self.maestro.setTarget(CH_BROW, position)
+        self.brow.setSpeed(BROW_SPEED)
+        self.mbrow.setTarget(position)
 
     def moveLocation(self, pitch, yaw):
         self.movePitch(pitch)
@@ -117,9 +120,9 @@ class Head():
     # Function to stop the movement of the head
     # Work in progress. Do not use.
     def stopHead(self):
-        self.maestro.moveBrow(self.maestro.getPosition(CH_BROW), BROW_SPEED)
-        self.maestro.moveYaw(self.maestro.getPosition(CH_YAW), YAW_SPEED)
-        self.maestro.movePitch(self.maestro.getPosition(CH_PITCH), PITCH_SPEED)
+        self.moveBrow(self.brow.getPosition(), BROW_SPEED)
+        self.moveYaw(self.yaw.getPosition(), YAW_SPEED)
+        self.movePitch(self.pitch.getPosition(), PITCH_SPEED)
 
     def browUp(self):
         self.moveBrow(BROW_U)
@@ -132,7 +135,7 @@ class Head():
 
     # Move head to a random coordinate upward
 	def lookUp(self, speed = 1.0):
-        yaw = min(9000, max(3000, self.maestro.getPosition(CH_YAW) + random.randint(-600, 600)))
+        yaw = min(9000, max(3000, self.yaw.getPosition() + random.randint(-600, 600)))
         pitch = random.randint(PITCH_CU, PITCH_U)
         (pitchSpeed, yawSpeed) = self._speedCalc(pitch, yaw, speed)
         self.movePitch(pitch, pitchSpeed)
@@ -140,7 +143,7 @@ class Head():
 
     # Move head to a random coordinate downward
 	def lookDown(self, speed = 1.0):
-        yaw = min(9000, max(3000, self.maestro.getPosition(CH_YAW) + random.randint(-600, 600)))
+        yaw = min(9000, max(3000, self.yaw.getPosition() + random.randint(-600, 600)))
         pitch = random.randint(PITCH_D, PITCH_CD)
         (pitchSpeed, yawSpeed) = self._speedCalc(pitch, yaw, speed)
         self.movePitch(pitch, pitchSpeed)
@@ -148,7 +151,7 @@ class Head():
 
     # Move head to a random coordinate to the left
 	def lookLeft(self, speed = 1.0):
-        pitch = min(9000, max(3000, self.maestro.getPosition(CH_PITCH) + random.randint(-600, 600)))
+        pitch = min(9000, max(3000, self.pitch.getPosition() + random.randint(-600, 600)))
         yaw = random.randint(YAW_L, YAW_CL)
         (pitchSpeed, yawSpeed) = self._speedCalc(pitch, yaw, speed)
         self.movePitch(pitch, pitchSpeed)
@@ -156,7 +159,7 @@ class Head():
 
     # Move head to a random coordinate to the right
 	def lookRight(self, speed = 1.0):
-        pitch = min(9000, max(3000, self.maestro.getPosition(CH_PITCH) + random.randint(-600, 600)))
+        pitch = min(9000, max(3000, self.pitch.getPosition() + random.randint(-600, 600)))
         yaw = random.randint(YAW_CR, YAW_R)
         (pitchSpeed, yawSpeed) = self._speedCalc(pitch, yaw, speed)
         self.movePitch(pitch, pitchSpeed)
@@ -187,7 +190,7 @@ class Head():
         elif x < -0.5:
             yawMove = yaw_L
         else:
-            yawMove = self.maestro.getPosition(CH_YAW)
+            yawMove = self.yaw.getPosition()
 
         # Have the head move up if joystick pushes up.
         # Have the head move down if joystick pushes down.
@@ -197,7 +200,7 @@ class Head():
         elif y < -0.5:
             pitchMove = pitch_D
         else:
-            pitchMove = self.maestro.getPosition(CH_PITCH)
+            pitchMove = self.pitch.getPosition()
 
         # Move the head
         self.moveYaw(yawMove, YAW_SPEED)
@@ -205,19 +208,18 @@ class Head():
 
     # Set the head to an exact position corresponding to a joystick.
 	def moveAbs(self, x, y):
-        self.maestro.setSpeed(CH_YAW,YAW_SPEED)
+        self.yaw.setSpeed(YAW_SPEED)
         if x >= 0:
             mx = int(x * (YAW_R - YAW_C) + YAW_C)
-			self.maestro.setTarget(CH_YAW, mx)
+			self.yaw.setTarget(mx)
 		else:
 			mx = int(YAW_C + x * (YAW_C - YAW_L))
-			self.maestro.setTarget(CH_YAW, mx)
+			self.yaw.setTarget(mx)
 
-		self.maestro.setSpeed(CH_PITCH,PITCH_SPEED)
+		self.pitch.setSpeed(PITCH_SPEED)
 		if y >= 0:
 			my = int(y * (PITCH_U - PITCH_C) + PITCH_C)
-			self.maestro.setTarget(CH_PITCH, my)
+			self.pitch.setTarget(my)
 		else:
 			my = int(PITCH_C + y * (PITCH_C - PITCH_D))
-			self.maestro.setTarget(CH_PITCH, my)
-		#print self.maestro.getPosition(CH_YAW), self.maestro.getPosition(CH_PITCH)
+			self.pitch.setTarget(my)
