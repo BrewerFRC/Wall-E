@@ -14,11 +14,8 @@ def playSnd(file) :
 		pygame.mixer.music.load(file)
 		pygame.mixer.music.play()
 
-# DriveTrain
-drivetrain = drive.DriveTrain(controllers.maestro,CH_RIGHT_MOTOR,CH_LEFT_MOTOR)
-speedtoggle = True # false = slow, true = normal
 # Head servo
-head = headControl.Head(controllers.maestro)
+head = headControl.Head()
 
 """
 Arms Up Emotion
