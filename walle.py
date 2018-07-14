@@ -1,48 +1,25 @@
-############################################
-##                walle.py                ##
-############################################
-## A robot created by Orange Chaos (4564) ##
-##                                        ##
-## Authors:                               ##
-##      Steven Jacobs                     ##
-##      Connor Billings                   ##
-##      Brent Roberts                     ##
-##      Evan McCoy                        ##
-##      Nate Wilcox                       ##
-##                                        ##
-## Published: Summer, 2014                ##
-## Updated: Summer, 2017                  ##
-############################################
-
-import xbox
-from controllers import controllers, drivetrain, head, arms
-import pygame, random, time
+import xbox, pygame, random, time
+from controllers import drive, head, arms
 import emotions
 
 # CONSTANTS
-yawSpeed = 30
-pitchSpeed = 30
 
 # BOOLEANS
-slowDriveMode = False
-driveDisabled = False
+Disable = False
+buttonPressed = False
+
 
 # Channels for Servo Controller #1
 CH_LEFT_MOTOR  = 1
 CH_RIGHT_MOTOR = 0
-# Channels for arm vertical movement
-CH_LEFT_ARM_VERT = 2
-CH_RIGHT_ARM_VERT = 3
-# Channels for hand servos
-CH_LEFT_HAND = 4
-CH_RIGHT_HAND = 5
+
 
 #
 # FUNCTIONS
 #
 def playSnd(file) :
 	global channel
-	file = "/home/pi/walle/Sounds/" + file
+	file = "/home/pi/Wall-E/Sounds/" + file
 	if file[-3:] == "wav":
 		channel.play(pygame.mixer.Sound(file))
 	else:
@@ -54,12 +31,17 @@ def playSnd(file) :
 #
 
 # Joystick
-j1 = xbox.Joystick(0)
-j2 = xbox.Joystick(1)
-
+#j1 = xbox.Joystick(0)
+#j2 = xbox.Joystick(1)
+j = xbox.Joystick(0)
+time.sleep(3)
+# DriveTrain
+drivetrain = drive.DriveTrain(CH_RIGHT_MOTOR,CH_LEFT_MOTOR)
+speedtoggle = True # false = slow, true = normal
+# Head servo
+head = head.Head()
 # Emotions
-emotion = emotions.Emotions(head, arms)
-
+emotion = emotions.Emotions(head)
 # Sound
 pygame.mixer.init(22050, -16, 1, 1024)
 channel = pygame.mixer.Channel(1)
@@ -80,55 +62,52 @@ sounds = [
 # MAIN LOOP
 #
 print ("Wall-E RISES!!!!!!!!!!")
+connected = False
 try:
         idleTimer = time.time()  # Timer to determine if we should switch to Idle mode
         idleWait = 0   # Timer value for next idle event occurence
         mode = "manual"
 	while True :
+                #print j.connected()
 		# Drive
-		arms.update()
-		if j1.connected():
-                        if driveDisabled == False:
-                                if slowDriveMode == True:
-                                        drivetrain.drive(j1.leftX() * .4, -(j1.leftY() * .5))
+		if j.connected():
+                        if connected == False:
+                                print "Joystick connected"
+                                connected = True
+                        if Disable == False:
+                                if speedtoggle == True:
+                                        drivetrain.drive(j.leftX() * .5, -(j.leftY()))
                                 else:
-                                        drivetrain.drive(j1.leftX() * .5, -(j1.leftY()))
+                                        drivetrain.drive(j.leftX() * .40, -(j.leftY() * .5))
+
 		else:
 			drivetrain.stop()
-
+			if connected == True:
+                                print "Joystick disconnected ",j.connected()
+			connected = False
 
 
                 # Head
 
                 # if the joystick is centered for 5 seconds, change to idle mode
                 #print mode,j.rightX(),j.rightY()
-                if (abs(j1.rightX()) <.1 and abs(j1.rightY()) < .1 and abs(j2.leftTrigger()) < .1 and abs(j2.rightTrigger()) < .1):
-                        if j2.B() or time.time() - idleTimer >= 12:
+                if abs(j.rightX()) <.1 and abs(j.rightY()) < .1 and abs(j.leftTrigger()) < .1 and abs(j.rightTrigger()) < .1 and abs(j.leftX()) <.1 and abs(j.leftY()) < .1:
+                        if time.time() - idleTimer >= 12:
                                 mode = "idle"
-                                head.stopHead()
                 else:
                         mode = "manual"
                         idleTimer = time.time()
-
                 # Interactive control
                 if mode == "manual":
-                        # Move head in direction of right joystick
-                        head.manualMove(j1.leftX() * .5, j1.rightY())
-
-                        # Move the brow
-                        if j2.rightTrigger() > .5:
+                        head.moveAbs(j.rightX() or j.leftX() * .5, -j.rightY())
+                        if j.rightTrigger() > .5:
                                 head.browUp()
                                 idleTimer = time.time()
-                        elif j2.leftTrigger() > .5:
+                        elif j.leftTrigger() > .5:
                                 head.browDown()
                                 idleTimer = time.time()
                         else:
                                 head.browCenter()
-
-                        # Move head back to center position
-                        if j1.whenRightThumbstick():
-                                head.lookCentered()
-
                 if mode == "idle":
                         # Is it time to start an idle move?
                         if time.time() > idleWait:
@@ -155,40 +134,73 @@ try:
                                         emotion.Outburst()
                                 else:
                                         head.lookCentered(0.5)
-
-                #speed Toggle and drive enable/disable
+                #speed Toggle
                 if j.Back():
-                        driveDisabled = True
+                        speedtoggle = False
                 if j.Start():
-                        driveDisabled = False
-                if not driveDisabled:
-                        if j.dpadDown():
-                                slowDriveMode = True
-                        if j.dpadUp():
-                                slowDriveMode = False
+                        speedtoggle = True
 
-
+                #Drive Disable
+                if j.dpadUp():
+                        if j.leftBumper():
+                                        if j.rightBumper():
+                                                Disable = False
+                                                print "Drive On"
+                if j.dpadDown():
+                        if j.leftBumper():
+                                        if j.rightBumper():
+                                                Disable = False
+                                                print "Disabled"
 
 		# Play Sounds if B button is pressed
-		if j2.whenLeftBumper():
-                        playSnd(sounds[random.randint(0, 8)])
+		if j.B() or j.dpadUp():
+                        if j.leftBumper() or j.dpadUp():
+                                if j.rightBumper() or j.dpadUp:
+                                        print "whistle while you work"
+                                        emotion.easterEgg(3)
+                                else:
+                                        playSnd(sounds[random.randint(0, 8)])
+                        else:
+                                playSnd(sounds[random.randint(0, 8)])
 
 		# Play "WALL-E" if Y button is pressed
-		if j1.whenY() or j2.whenY():
+		if j.Y():
                         idleWait = time.time() + random.randint(2,10) #Next idle event wait time
                         mode = "idle"
-                        emotion.intro()
+                        if j.leftBumper():
+                                if j.rightBumper():
+                                        emotion.easterEgg(1)
+                                        print ""
+                                else:
+                                        emotion.intro()
+                        else:
+                                emotion.intro()
 
 		# Print test results if A button is pressed
-		if j2.whenA():
-                        print(servo.isMoving(0),servo.isMoving(1))
+		if j.A():
+                        if j.leftBumper():
+                                if j.rightBumper():
+                                        #emotion.easterEgg(4)
+                                        print "ROAR!!!!!!!"
+                                else:
+                                        print(servo.isMoving(0),servo.isMoving(1))
+                        else:
+                                print(servo.isMoving(0),servo.isMoving(1))
 
 
-		# Play a random emotion if X Button is pressed
-		if j2.whenRightBumper():
-                        idleWait = time.time() + random.randint(2,10) #Next idle event wait time
-                        mode = "idle"
-                        emotion.Outburst()
+		# Play a random emotion if B Button is pressed
+		if j.X():
+                        if j.leftBumper():
+                                if j.rightBumper():
+                                        emotion.easterEgg(2)
+                                else:
+                                        idleWait = time.time() + random.randint(2,10) #Next idle event wait time
+                                        mode = "idle"
+                                        emotion.Outburst()
+                        else:
+                                idleWait = time.time() + random.randint(2,10) #Next idle event wait time
+                                mode = "idle"
+                                emotion.Outburst()
 
 except:
 	drivetrain.close()

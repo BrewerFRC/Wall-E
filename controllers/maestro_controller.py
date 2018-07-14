@@ -1,4 +1,5 @@
 import serial
+import threading
 #
 #---------------------------
 # Maestro Servo Controller

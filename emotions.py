@@ -13,7 +13,7 @@ import time
 #
 def playSnd(file) :
 	global channel
-	file = "/home/pi/walle/Sounds/" + file
+	file = "/home/pi/Wall-E/Sounds/" + file
 	if file[-3:] == "wav":
 		channel.play(pygame.mixer.Sound(file))
 	else:
@@ -53,6 +53,7 @@ class Emotions:
             #time.sleep(0.5)
             #playSnd("Jitters.mp3")
 
+
         def startled(self):
             playSnd("Whoohoo.mp3")
             self.head.lookCentered()
@@ -63,10 +64,6 @@ class Emotions:
             self.head.browCenter()
             #playSnd("Walle Name.mp3")
             playSnd ("Walle Name.mp3")
-
-		def wave(self):
-			#TODO: Add wave movements
-			pass
 
         # function to select an emotion
         def Outburst(self):

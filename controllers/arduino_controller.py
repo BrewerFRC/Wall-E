@@ -30,7 +30,7 @@ class Arduino:
             value = int(command[2:])
         return action, channel, value
 
-class _ServoMotor:
+class _Motor:
 
     def __init__(self, channel, arduino):
         self.channel = channel

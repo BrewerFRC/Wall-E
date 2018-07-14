@@ -11,5 +11,5 @@ class Action:
         return self.complete
 
     # Resets the action complete flag.
-    def setReady():
-        self.complete = True
+    def reset():
+        self.complete = False
