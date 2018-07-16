@@ -1,7 +1,7 @@
-from controllers import arms, drive, head as headControl
+from controllers import drive, head as headControl
 from emotions import emotions2 as emotions
 from emotions import actions
-
+from controllers import arms as armController
 #
 # FUNCTIONS
 #
@@ -13,10 +13,10 @@ def playSnd(file) :
 	else:
 		pygame.mixer.music.load(file)
 		pygame.mixer.music.play()
-
+# Instantiates the arm system.
+arms = armController.Arms();
 # Head servo
 head = headControl.Head()
-
 """
 Arms Up Emotion
 """

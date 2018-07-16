@@ -1,7 +1,7 @@
 import xbox, pygame, random, time
-from controllers import drive, head, arms
+from controllers import drive, head
 import emotions
-
+from controllers import arms as armController
 # CONSTANTS
 
 # BOOLEANS
@@ -42,6 +42,8 @@ speedtoggle = True # false = slow, true = normal
 head = head.Head()
 # Emotions
 emotion = emotions.Emotions(head)
+# Arms
+arms = armController.Arms();
 # Sound
 pygame.mixer.init(22050, -16, 1, 1024)
 channel = pygame.mixer.Channel(1)
