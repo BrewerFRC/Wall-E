@@ -53,9 +53,9 @@ class Arms:
 
         if self.wavingR==1:
             if time.time() < self.timerR:
-                self.wristPos('r', 9000)
+                self.wristPos('r', 7000)  #was 9000
             else:
                 self.wavingR=0
                 self.timerR = time.time() + 0.5
-                self.wristPos('r', 7000)
+                self.wristPos('r', 4000)  #was 7000
 

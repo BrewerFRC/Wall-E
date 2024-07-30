@@ -26,9 +26,6 @@ CH_RIGHT_MOTOR = 0
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(BUTTON,GPIO.IN)
 
-#Variables
-prevButton = False
-buttonTimer = 0
 
 #
 # FUNCTIONS
@@ -48,8 +45,7 @@ def buttonPressed():
     else:
         return True
 
-
-
+            
 #
 # INITIALIZATION
 #
@@ -195,20 +191,9 @@ try:
                 playSnd(sounds[random.randint(0, 8)])
 
         # Plays sound if red button is pressed
-#        print buttonTimer, time.time(), prevButton
         if buttonPressed():
-            if prevButton == False:   
-                playSnd(sounds[random.randint(0,8)])
-            prevButton = True
-            if buttonTimer == 0:
-                buttonTimer = time.time()
-            elif buttonTimer + 1 < time.time():
-                playSnd("Eve_Sound.mp3")
-                buttonTimer = time.time() + 5
-        else:
-            prevButton = False
-            buttonTimer = 0
- 
+            playSnd(sounds[random.randint(0,8)])
+            
         # Play "WALL-E" if Y button is pressed
         if j.Y():
             idleWait = time.time() + random.randint(2,10) #Next idle event wait time
